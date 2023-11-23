@@ -1,0 +1,49 @@
+﻿@model WebMVC.ViewModels.OrderViewModels.IndexViewModel
+
+@{
+    ViewData["Title"] = "Orders Page";
+}
+
+<div class="container">
+    @if (ViewBag.Error != null)
+    {
+        <div class="alert alert-warning" role="alert">
+            @ViewBag.Error
+        </div>
+    }
+    @if (Model.Orders.Count() > 0)
+    {
+        <table class="table">
+            <thead>
+                <tr>
+                    <th scope="col">Date</th>
+                    <th scope="col">Total</th>
+                    <th scope="col">Status</th>
+                    <th scope="col"></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var order in Model.Orders)
+                {
+                    <tr>
+                        <td>@order.Date.ToString("MM/dd/yyyy h:mm tt")</td>
+                        <td>@order.TotalPrice</td>
+                        <td>@order.Status</td>
+                        <td>
+                            @if (order.Status != "Cancelled" && order.Status != "Shipped")
+                            {
+                                <a class="btn btn-outline-warning position-relative"
+                                   asp-area=""
+                                   asp-controller="Order"
+                                   asp-action="Cancel"
+                                   asp-route-id="@order.Id">
+                                    Cancel
+                                </a>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+</div>

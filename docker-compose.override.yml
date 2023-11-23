@@ -1,0 +1,93 @@
+version: '3.4'
+
+services:
+  sqldata:
+    environment:
+      - SA_PASSWORD=Passw0rd
+      - ACCEPT_EULA=Y
+    # ports:
+    #   - "5433:1433"
+    volumes:
+      - sqldata:/var/opt/mssql
+
+  cartdata:
+      volumes:
+      - cartdata:/var/opt/mssql
+
+  rabbitmq:
+    environment:
+      - RABBITMQ_DEFAULT_USER=${RABBITMQ_DEFAULT_USER:-guest}
+      - RABBITMQ_DEFAULT_PASS=${RABBITMQ_DEFAULT_PASS:-guest}
+
+  webmvc:
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://0.0.0.0:80
+      - GatewayUrl=http://webappgateway
+      - IdentityUrl=http://${ESHOP_EXTERNAL_DNS_NAME_OR_IP}:5001
+      - CallBackUrl=http://${ESHOP_EXTERNAL_DNS_NAME_OR_IP}:7212/
+    ports:
+      - "7212:80"
+
+  shopping-cart-api:
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://0.0.0.0:80
+      - ConnectionStrings__EventBus=rabbitmq
+      - ConnectionStrings__Redis=cartdata
+    ports:
+      - "80"
+
+  order-api:
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://0.0.0.0:80
+      - ConnectionStrings__EventBus=rabbitmq
+      - ConnectionStrings__OrderDb=Server=sqldata;Database=OrderDb;User Id=sa;Password=Passw0rd;Encrypt=False;TrustServerCertificate=true
+    ports:
+      - "80"
+
+  catalog-api:
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://0.0.0.0:80
+      - ConnectionStrings__EventBus=rabbitmq
+      - ConnectionStrings__CatalogDb=Server=sqldata;Database=CatalogDb;User Id=sa;Password=Passw0rd;Encrypt=False;TrustServerCertificate=true
+    ports:
+      - "80"
+
+  webappgateway:
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://0.0.0.0:80
+      - ReverseProxy__Clusters__catalog-cluster__Destinations__destination0__Address=http://catalog-api
+      - ReverseProxy__Clusters__shopping-cart-cluster__Destinations__destination0__Address=http://shopping-cart-api
+      - ReverseProxy__Clusters__order-cluster__Destinations__destination0__Address=http://order-api
+    ports:
+      - "80"
+
+  notification-email:
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://0.0.0.0:80
+      - ConnectionStrings__EventBus=rabbitmq
+    ports:
+      - "80"
+
+  identity-api:
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://0.0.0.0:80
+      - MvcClient=http://${ESHOP_EXTERNAL_DNS_NAME_OR_IP}:7212
+    ports:
+      - "5001:80"
+    volumes:
+      - ${APPDATA}/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro
+      - ${APPDATA}/ASP.NET/Https:/root/.aspnet/https:ro
+volumes:
+  sqldata:
+    external: false
+  cartdata:
+    external: false
+
+

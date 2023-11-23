@@ -1,0 +1,38 @@
+﻿@model WebMVC.ViewModels.Order
+
+@{
+    ViewData["Title"] = "Place order";
+}
+
+<div class="container">
+    @if (ViewBag.Error != null)
+    {
+        <div class="alert alert-warning" role="alert">
+            @ViewBag.Error
+        </div>
+    }
+    <section class="h-100" style="background-color: #eee;">
+        <div class="card">
+            <div class="card-body">Total cost: @Model.TotalPrice</div>
+        </div>
+        <form method="post">
+            <input type="hidden" name="Model.BuyerId" value="@Model.BuyerId" />
+            @for (var i = 0; i < Model.OrderItems.Count; i++)
+            {
+                <input type="hidden" name="orderItems.Index" value="@i" />
+                <input type="hidden" name="Model.OrderItems[@i].ProductId" value="@Model.OrderItems[i].ProductId" />
+                <input type="hidden" name="Model.OrderItems[@i].ProductName" value="@Model.OrderItems[i].ProductName" />
+                <input type="hidden" name="Model.OrderItems[@i].UnitPrice" value="@Model.OrderItems[i].UnitPrice" />
+                <input type="hidden" name="Model.OrderItems[@i].UnitQuantity" value="@Model.OrderItems[i].UnitQuantity" />
+            }
+            <div class="card">
+                <div class="card-body">
+                    <input type="submit"
+                           class="btn btn-outline-success btn-block btn-lg"
+                           value="Place order" name="action" />
+                </div>
+            </div>
+        </form>
+    </section>
+
+</div>

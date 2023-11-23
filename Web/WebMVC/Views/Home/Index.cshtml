@@ -1,0 +1,31 @@
+﻿@model WebMVC.ViewModels.HomeViewModels.IndexViewModel
+
+@{
+    ViewData["Title"] = "Home Page";
+}
+
+<div class="container">
+    @if (Model.CatalogItems.Count() > 0)
+    {
+        <div class="row justify-content-between">
+            @foreach (var catalogItem in Model.CatalogItems)
+            {
+                <div class="card col-md-3 m-1">
+                    <div class="card-body">
+                        <form asp-controller="ShoppingCart" asp-action="AddToCart">
+
+                            <img class="card-img-top" src="https://mdbcdn.b-cdn.net/img/Photos/new-templates/bootstrap-shopping-carts/img1.webp" />
+                            <h5 class="card-title">@catalogItem.Name</h5>
+                            <p class="card-text">@catalogItem.Price.ToString("N2")</p>
+                            @if (User.Identity.IsAuthenticated)
+                            {
+                                <input class="btn btn-outline-success" type="submit" value="ADD TO CART" />
+                            }
+                            <input type="hidden" asp-for="@catalogItem.Id" name="id" />
+                        </form>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>

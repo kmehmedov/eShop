@@ -1,0 +1,73 @@
+version: '3.4'
+
+services:
+
+  sqldata:
+    image: mcr.microsoft.com/mssql/server:2022-latest 
+
+  cartdata:
+    image: redis
+
+  rabbitmq:
+    image: rabbitmq:3-management
+
+  shopping-cart-api:
+    image: ${DOCKER_REGISTRY-}shoppingcartapi
+    build:
+      context: .
+      dockerfile: Services/ShoppingCart/ShoppingCart.API/Dockerfile
+    depends_on:
+      - cartdata
+      - rabbitmq
+
+  catalog-api:
+    image: ${DOCKER_REGISTRY-}catalogapi
+    build:
+      context: .
+      dockerfile: Services/Catalog/Catalog.API/Dockerfile
+    depends_on:
+      - sqldata
+      - rabbitmq
+
+  order-api:
+    image: ${DOCKER_REGISTRY-}orderapi
+    build:
+      context: .
+      dockerfile: Services/Order/Order.API/Dockerfile
+    depends_on:
+      - sqldata
+      - rabbitmq
+
+  webappgateway:
+    image: ${DOCKER_REGISTRY-}webappgateway
+    build:
+      context: .
+      dockerfile: ApiGateways/WebAppGateway/Dockerfile
+    depends_on:
+      - order-api
+      - catalog-api
+      - shopping-cart-api
+
+  webmvc:
+    image: ${DOCKER_REGISTRY-}webmvc
+    build:
+      context: .
+      dockerfile: Web/WebMVC/Dockerfile
+    depends_on:
+      - webappgateway
+
+  notification-email:
+    image: ${DOCKER_REGISTRY-}notificationemail
+    build:
+      context: .
+      dockerfile: Services/Notification/Notification.Email/Dockerfile
+    depends_on:
+      - rabbitmq
+
+
+  identity-api:
+    image: ${DOCKER_REGISTRY-}identityapi
+    build:
+      context: .
+      dockerfile: Services/Identity/Identity.API/Dockerfile
+
