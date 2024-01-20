@@ -12,12 +12,17 @@ namespace Catalog.Application.Queries
         }
         public async Task<QueryResult<CatalogItemDTO>> Handle(GetCatalogItemByIdQuery request, CancellationToken cancellationToken)
         {
-            var catalogItem = await _catalogItemRepository.GetAsync(request.Id);
+            CatalogItem catalogItem = new CatalogItem();
 
-            if (catalogItem == null)
+            try
             {
-                return new QueryResult<CatalogItemDTO>(result: catalogItem.ToCatalogItemDTO(), type: QueryResultTypeEnum.NotFound);
+                catalogItem = await _catalogItemRepository.GetAsync(request.Id);
             }
+            catch (InvalidOperationException)
+            {
+                return new QueryResult<CatalogItemDTO>(result: new CatalogItemDTO(), type: QueryResultTypeEnum.NotFound);
+            }
+
             return new QueryResult<CatalogItemDTO>(result: catalogItem.ToCatalogItemDTO(), type: QueryResultTypeEnum.Success);
         }
 

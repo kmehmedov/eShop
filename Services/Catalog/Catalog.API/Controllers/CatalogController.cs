@@ -1,7 +1,5 @@
 ﻿using Catalog.Application.Models;
 using Catalog.Application.Queries;
-using Catalog.Domain.Models.CatalogBrands;
-using Catalog.Domain.Models.CatalogItems;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
@@ -18,10 +16,10 @@ namespace Catalog.API.Controllers
         }
 
         [HttpGet]
-        [ProducesResponseType(typeof(CatalogItem), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(CatalogItemDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [Route("catalogitems/{id}")]
-        public async Task<ActionResult<CatalogItem>> GetCatalogItemByIdAsync([FromRoute] int id)
+        public async Task<ActionResult<CatalogItemDTO>> GetCatalogItemByIdAsync([FromRoute] int id)
         {
             var query = new GetCatalogItemByIdQuery()
             {
@@ -31,6 +29,7 @@ namespace Catalog.API.Controllers
 
             if (result.Type == QueryResultTypeEnum.NotFound)
             {
+                _logger.LogWarning("The CatalogItem with Id {id} Could not be found.", id);
                 return new NotFoundResult();
             }
 
@@ -38,9 +37,9 @@ namespace Catalog.API.Controllers
         }
 
         [HttpGet]
-        [ProducesResponseType(typeof(IEnumerable<CatalogItem>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(IEnumerable<CatalogItemDTO>), StatusCodes.Status200OK)]
         [Route("catalogitems")]
-        public async Task<ActionResult<IEnumerable<CatalogItem>>> GetCatalogItemsAsync()
+        public async Task<ActionResult<IEnumerable<CatalogItemDTO>>> GetCatalogItemsAsync()
         {
             var query = new GetCatalogItemsQuery();
             var result = await _mediator.Send(query);
@@ -49,14 +48,14 @@ namespace Catalog.API.Controllers
         }
 
         [HttpGet]
-        [ProducesResponseType(typeof(IEnumerable<CatalogBrand>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(IEnumerable<CatalogBrandDTO>), StatusCodes.Status200OK)]
         [Route("catalogbrands")]
-        public async Task<ActionResult<IEnumerable<CatalogBrand>>> GetCatalogBrandsAsync()
+        public async Task<ActionResult<IEnumerable<CatalogBrandDTO>>> GetCatalogBrandsAsync()
         {
             var query = new GetCatalogBrandsQuery();
             var brands = await _mediator.Send(query);
 
-            return Ok(brands);
+            return Ok(brands.Result);
         }
 
         #region Private members

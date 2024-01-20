@@ -1,6 +1,5 @@
 ﻿using Catalog.Domain.Models.CatalogBrands;
 using Catalog.Domain.Models.CatalogItems;
-using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 
 namespace Catalog.Infrastructure
@@ -11,8 +10,6 @@ namespace Catalog.Infrastructure
         {
             using (context)
             {
-                await context.Database.MigrateAsync();
-
                 if (!context.CatalogBrands.Any())
                 {
                     await context.CatalogBrands.AddRangeAsync(GetCatalogBrands());

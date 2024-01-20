@@ -26,9 +26,15 @@ namespace Catalog.Application.IntegrationEvents.EventHandling
             //we're not blocking stock/inventory
             foreach (var orderStockItem in @event.OrderItems)
             {
-                var catalogItem = await _catalogItemRepository.GetAsync(orderStockItem.ProductId);
-
-                catalogItem.RemoveQuantity(orderStockItem.UnitQuantity);
+                try
+                {
+                    var catalogItem = await _catalogItemRepository.GetAsync(orderStockItem.ProductId);
+                    catalogItem.RemoveQuantity(orderStockItem.UnitQuantity);
+                }
+                catch (InvalidOperationException ex) 
+                {
+                    _logger.LogError(ex, $"Error decreasing quantity for product with Id: {orderStockItem.ProductId}");
+                }
             }
 
             await _catalogContext.SaveChangesAsync();
