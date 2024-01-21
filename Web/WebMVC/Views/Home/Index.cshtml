@@ -17,7 +17,7 @@
                             <img class="card-img-top" src="https://mdbcdn.b-cdn.net/img/Photos/new-templates/bootstrap-shopping-carts/img1.webp" />
                             <h5 class="card-title">@catalogItem.Name</h5>
                             <p class="card-text">@catalogItem.Price.ToString("N2")</p>
-                            @if (User.Identity.IsAuthenticated)
+                            @if (User.Identity?.IsAuthenticated ?? false)
                             {
                                 <input class="btn btn-outline-success" type="submit" value="ADD TO CART" />
                             }

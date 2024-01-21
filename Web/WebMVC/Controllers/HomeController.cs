@@ -14,7 +14,17 @@ public class HomeController : Controller
 
     public async Task<IActionResult> Index()
     {
-        var items = await _catalogService.GetCatalogItems(null);
+        var items = new List<ViewModels.CatalogItem>();
+        try
+        {
+            var remoteItems = await _catalogService.GetCatalogItems(null);
+            items.AddRange(remoteItems);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error fetching catalog items");
+            ViewBag.Error = $"Error occured - {ex.GetType().Name} - {ex.Message}";
+        }
 
         var vm = new IndexViewModel()
         {
