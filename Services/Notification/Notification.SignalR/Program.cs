@@ -1,25 +1,34 @@
+using Notification.SignalR;
+using Notification.SignalR.Application.IntegrationEvents.EventHandling;
+using Notification.SignalR.Application.IntegrationEvents.Events;
+using Services.Common;
+using Services.Common.Abstractions;
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+builder.AddCommonServices();
+builder.Services.AddJwtAuthentication(builder.Configuration);
 
-builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSignalR();
+
+builder.Services.AddTransient<OrderConfirmedIntegrationEventHandler>();
+builder.Services.AddTransient<OrderShippedIntegrationEventHandler>();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
+if (!app.Environment.IsDevelopment())
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
+    app.UseExceptionHandler("/Home/Error");
 }
 
-app.UseHttpsRedirection();
+app.UseAuthentication();
+// TODO: Implement authorization
+//app.UseAuthorization();
 
-app.UseAuthorization();
+app.MapHub<NotificationHub>("hub/notificationhub");
 
-app.MapControllers();
+var eventBus = app.Services.GetRequiredService<IEventBus>();
+eventBus.Subscribe<OrderConfirmedIntegrationEvent, OrderConfirmedIntegrationEventHandler>();
+eventBus.Subscribe<OrderShippedIntegrationEvent, OrderShippedIntegrationEventHandler>();
 
 app.Run();

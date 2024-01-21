@@ -55,6 +55,7 @@ services:
       dockerfile: Web/WebMVC/Dockerfile
     depends_on:
       - webappgateway
+      - notification-signalr
 
   notification-email:
     image: ${DOCKER_REGISTRY-}notificationemail
@@ -70,4 +71,13 @@ services:
     build:
       context: .
       dockerfile: Services/Identity/Identity.API/Dockerfile
+
+
+  notification-signalr:
+    image: ${DOCKER_REGISTRY-}notificationsignalr
+    build:
+      context: .
+      dockerfile: Services/Notification/Notification.SignalR/Dockerfile
+    depends_on:
+      - rabbitmq
 

@@ -4,10 +4,12 @@ using Services.Common;
 using System.IdentityModel.Tokens.Jwt;
 using WebMVC;
 using WebMVC.Services;
+using Yarp.ReverseProxy.Forwarder;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.Configure<AppSettings>(builder.Configuration);
+builder.Services.AddHttpForwarder();
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 // Add Authentication
@@ -40,6 +42,7 @@ builder.Services.AddAuthentication(options =>
     options.Scope.Add("webappgateway");
     options.Scope.Add("order");
     options.Scope.Add("shoppingcart");
+    options.Scope.Add("notification.signalr");
 });
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddTransient<HttpClientAuthorizationDelegatingHandler>();
@@ -73,4 +76,6 @@ app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
 app.MapControllerRoute("defaultError", "{controller=Error}/{action=Error}");
+var destination = app.Configuration.GetValue<string>("SignalRHubUrl") ?? throw new InvalidOperationException($"Invalid configuration");
+app.MapForwarder("/hub/notificationhub/{**any}", destination, new ForwarderRequestConfig(), new MvcAuthHttpTransformer());
 app.Run();

@@ -26,6 +26,7 @@ services:
       - GatewayUrl=http://webappgateway
       - IdentityUrl=http://${ESHOP_EXTERNAL_DNS_NAME_OR_IP}:5001
       - CallBackUrl=http://${ESHOP_EXTERNAL_DNS_NAME_OR_IP}:7212/
+      - SignalRHubUrl=http://notification-signalr
     ports:
       - "7212:80"
 
@@ -82,6 +83,18 @@ services:
       - MvcClient=http://${ESHOP_EXTERNAL_DNS_NAME_OR_IP}:7212
     ports:
       - "5001:80"
+    volumes:
+      - ${APPDATA}/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro
+      - ${APPDATA}/ASP.NET/Https:/root/.aspnet/https:ro
+
+  notification-signalr:
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://0.0.0.0:80
+      - ConnectionStrings__EventBus=rabbitmq
+      - Identity__Url=http://${ESHOP_EXTERNAL_DNS_NAME_OR_IP}:5001
+    ports:
+      - "80"
     volumes:
       - ${APPDATA}/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro
       - ${APPDATA}/ASP.NET/Https:/root/.aspnet/https:ro

@@ -5,12 +5,13 @@
       "commandVersion": "1.0",
       "serviceActions": {
         "webmvc": "StartDebugging",
-        "shoppingcart.api": "StartDebugging",
-        "order.api": "StartDebugging",
-        "catalog.api": "StartDebugging",
+        "shoppingcart-api": "StartDebugging",
+        "order-api": "StartDebugging",
+        "catalog-api": "StartDebugging",
         "webappgateway": "StartDebugging",
-        "notification.email": "StartDebugging",
-        "identity.api": "StartDebugging"
+        "notification-email": "StartDebugging",
+        "identity-api": "StartDebugging",
+        "notification-signalr": "StartDebugging"
       }
     }
   }

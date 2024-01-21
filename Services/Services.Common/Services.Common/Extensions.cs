@@ -6,6 +6,7 @@ using RabbitMQ.Client;
 using Services.Common.Abstractions.RabbitMQ;
 using Services.Common.Abstractions;
 using Services.Common.RabbitMQ;
+using System.IdentityModel.Tokens.Jwt;
 
 namespace Services.Common
 {
@@ -79,6 +80,8 @@ namespace Services.Common
                 return services;
             }
 
+            JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
+
             services.AddAuthentication().AddJwtBearer(options =>
             {
                 var identityUrl = identitySection.GetValue<string>("Url") ?? throw new InvalidOperationException();
@@ -88,6 +91,8 @@ namespace Services.Common
                 options.RequireHttpsMetadata = false;
                 options.Audience = audience;
                 options.TokenValidationParameters.ValidateAudience = false;
+                options.TokenValidationParameters.NameClaimType = "sub";
+                options.TokenValidationParameters.RoleClaimType = "role";
             });
 
             return services;

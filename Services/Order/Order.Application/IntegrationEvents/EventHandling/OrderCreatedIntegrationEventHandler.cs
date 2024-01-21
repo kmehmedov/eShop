@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
 using Order.Application.IntegrationEvents.Events;
 using Order.Domain.Exceptions;
 using Order.Domain.Models.Orders;
@@ -21,17 +22,13 @@ namespace Order.Application.IntegrationEvents.EventHandling
             // Simulate some delay
             Thread.Sleep(5000);
 
-            var order = await _orderRepository.GetAsync(@event.OrderId);
-            if (order == null)
-            {
-                throw new OrderDomainException($"Can not find order with id - {@event.OrderId}");
-            }
+            var order = await _orderRepository.GetAsync(@event.OrderId) ?? throw new OrderDomainException($"Can not find order with id - {@event.OrderId}");
 
             order.Confirm();
             await _orderRepository.UpdateAsync(order);
             await _orderRepository.UnitOfWork.SaveChangesAsync();
 
-            _orderIntegrationEventService.PublishThroughEventBus(new OrderConfirmedIntegrationEvent() { OrderId = order.Id, OrderItems = order.OrderItems.ToOrderItemsDTO() });
+            _orderIntegrationEventService.PublishThroughEventBus(new OrderConfirmedIntegrationEvent() { OrderId = order.Id, OrderItems = order.OrderItems.ToOrderItemsDTO(), BuyerId = order.BuyerId });
         }
 
         #region PRivate members

@@ -21,17 +21,13 @@ namespace Order.Application.IntegrationEvents.EventHandling
             // Simulate some delay
             Thread.Sleep(5000);
 
-            var order = await _orderRepository.GetAsync(@event.OrderId);
-            if (order == null)
-            {
-                throw new OrderDomainException($"Can not find order with id - {@event.OrderId}");
-            }
+            var order = await _orderRepository.GetAsync(@event.OrderId) ?? throw new OrderDomainException($"Can not find order with id - {@event.OrderId}");
 
             order.Ship();
             await _orderRepository.UpdateAsync(order);
             await _orderRepository.UnitOfWork.SaveChangesAsync();
 
-            _orderIntegrationEventService.PublishThroughEventBus(new OrderShippedIntegrationEvent(order.Id, order.OrderItems.ToOrderItemsDTO()));
+            _orderIntegrationEventService.PublishThroughEventBus(new OrderShippedIntegrationEvent(order.Id, order.BuyerId, order.OrderItems.ToOrderItemsDTO()));
         }
 
         #region PRivate members

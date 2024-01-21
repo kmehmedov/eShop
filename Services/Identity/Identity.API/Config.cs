@@ -17,7 +17,8 @@ public static class Config
         {
             new ApiScope("webappgateway"),
             new ApiScope("order"),
-            new ApiScope("shoppingcart")
+            new ApiScope("shoppingcart"),
+            new ApiScope("notification.signalr")
         };
 
     public static IEnumerable<ApiResource> ApiResources =>
@@ -25,7 +26,8 @@ public static class Config
             {
                 new ApiResource("webappgateway", "Web app gateway"),
                 new ApiResource("order", "Order"),
-                new ApiResource("shoppingcart", "Shopping cart")
+                new ApiResource("shoppingcart", "Shopping cart"),
+                new ApiResource("notification.signalr", "Notification signalR")
             };
 
 
@@ -64,7 +66,8 @@ public static class Config
                         IdentityServerConstants.StandardScopes.OfflineAccess,
                         "webappgateway",
                         "order",
-                        "shoppingcart"
+                        "shoppingcart",
+                        "notification.signalr"
                     }
                 }
         };
