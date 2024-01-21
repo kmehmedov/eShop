@@ -15,13 +15,17 @@ public static class Config
     public static IEnumerable<ApiScope> ApiScopes =>
         new ApiScope[]
         {
-            new ApiScope("webappgateway")
+            new ApiScope("webappgateway"),
+            new ApiScope("order"),
+            new ApiScope("shoppingcart")
         };
 
     public static IEnumerable<ApiResource> ApiResources =>
                 new List<ApiResource>
             {
-                new ApiResource("webappgateway", "Web app gateway")
+                new ApiResource("webappgateway", "Web app gateway"),
+                new ApiResource("order", "Order"),
+                new ApiResource("shoppingcart", "Shopping cart")
             };
 
 
@@ -58,7 +62,9 @@ public static class Config
                         IdentityServerConstants.StandardScopes.OpenId,
                         IdentityServerConstants.StandardScopes.Profile,
                         IdentityServerConstants.StandardScopes.OfflineAccess,
-                        "webappgateway"
+                        "webappgateway",
+                        "order",
+                        "shoppingcart"
                     }
                 }
         };

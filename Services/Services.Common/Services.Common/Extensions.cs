@@ -69,5 +69,28 @@ namespace Services.Common
             services.AddSingleton<IEventBusSubscriptionsManager, InMemoryEventBusSubscriptionsManager>();
             return services;
         }
+
+        public static IServiceCollection AddJwtAuthentication(this IServiceCollection services, IConfiguration configuration)
+        {
+            var identitySection = configuration.GetSection("Identity");
+
+            if (!identitySection.Exists())
+            {
+                return services;
+            }
+
+            services.AddAuthentication().AddJwtBearer(options =>
+            {
+                var identityUrl = identitySection.GetValue<string>("Url") ?? throw new InvalidOperationException();
+                var audience = identitySection.GetValue<string>("Audience") ?? throw new InvalidOperationException();
+
+                options.Authority = identityUrl;
+                options.RequireHttpsMetadata = false;
+                options.Audience = audience;
+                options.TokenValidationParameters.ValidateAudience = false;
+            });
+
+            return services;
+        }
     }
 }

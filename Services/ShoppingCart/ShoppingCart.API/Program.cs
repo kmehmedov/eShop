@@ -16,7 +16,7 @@ builder.Services.AddProblemDetails();
 
 builder.Services.AddSingleton(sp =>
 {
-    var redisConfig = ConfigurationOptions.Parse(builder.Configuration.GetConnectionString("Redis"), true);
+    var redisConfig = ConfigurationOptions.Parse(builder.Configuration?.GetConnectionString("Redis") ?? throw new InvalidOperationException("Invalid configuration"), true);
 
     return ConnectionMultiplexer.Connect(redisConfig);
 });

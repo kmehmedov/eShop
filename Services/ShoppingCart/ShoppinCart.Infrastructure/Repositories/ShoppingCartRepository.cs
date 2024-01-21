@@ -11,7 +11,6 @@ namespace ShoppingCart.Infrastructure.Repositories
         {
             _logger=logger;
             _database=redis.GetDatabase();
-            _redis=redis;
         }
         public Task CreateAsync(Domain.Models.ShoppingCart.ShoppingCart item)
         {
@@ -29,7 +28,7 @@ namespace ShoppingCart.Infrastructure.Repositories
 
             if (data.IsNullOrEmpty)
             {
-                return null;
+                return new Domain.Models.ShoppingCart.ShoppingCart(id);
             }
 
             return JsonSerializer.Deserialize<Domain.Models.ShoppingCart.ShoppingCart>(data, new JsonSerializerOptions
@@ -57,14 +56,7 @@ namespace ShoppingCart.Infrastructure.Repositories
         }
 
         #region Private members
-        private IServer GetServer()
-        {
-            var endpoint = _redis.GetEndPoints();
-            return _redis.GetServer(endpoint.First());
-        }
-
         private readonly ILogger<ShoppingCartRepository> _logger;
-        private readonly ConnectionMultiplexer _redis;
         private readonly IDatabase _database;
         #endregion
     }

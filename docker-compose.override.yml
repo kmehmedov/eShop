@@ -63,6 +63,7 @@ services:
       - ReverseProxy__Clusters__catalog-cluster__Destinations__destination0__Address=http://catalog-api
       - ReverseProxy__Clusters__shopping-cart-cluster__Destinations__destination0__Address=http://shopping-cart-api
       - ReverseProxy__Clusters__order-cluster__Destinations__destination0__Address=http://order-api
+      - Identity__Url=http://${ESHOP_EXTERNAL_DNS_NAME_OR_IP}:5001
     ports:
       - "80"
 

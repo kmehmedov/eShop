@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
-using Microsoft.Extensions.Configuration;
+using Services.Common;
 using System.IdentityModel.Tokens.Jwt;
 using WebMVC;
 using WebMVC.Services;
@@ -14,8 +14,8 @@ builder.Services.AddControllersWithViews();
 JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
 JwtSecurityTokenHandler.DefaultInboundClaimFilter.Clear();
 
-var identityUrl = builder.Configuration.GetValue<string>("IdentityUrl");
-var callBackUrl = builder.Configuration.GetValue<string>("CallBackUrl");
+var identityUrl = builder.Configuration.GetValue<string>("IdentityUrl") ?? throw new InvalidOperationException("Invalid configuration");
+var callBackUrl = builder.Configuration.GetValue<string>("CallBackUrl") ?? throw new InvalidOperationException("Invalid configuration");
 
 // Add Authentication services
 builder.Services.AddAuthentication(options =>
@@ -38,11 +38,16 @@ builder.Services.AddAuthentication(options =>
     options.Scope.Add("openid");
     options.Scope.Add("profile");
     options.Scope.Add("webappgateway");
+    options.Scope.Add("order");
+    options.Scope.Add("shoppingcart");
 });
-
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddTransient<HttpClientAuthorizationDelegatingHandler>();
 builder.Services.AddHttpClient<ICatalogService, CatalogService>();
-builder.Services.AddHttpClient<IShoppingCartService, ShoppingCartService>();
-builder.Services.AddHttpClient<IOrderService, OrderService>();
+builder.Services.AddHttpClient<IShoppingCartService, ShoppingCartService>()
+    .AddHttpMessageHandler<HttpClientAuthorizationDelegatingHandler>();
+builder.Services.AddHttpClient<IOrderService, OrderService>()
+    .AddHttpMessageHandler<HttpClientAuthorizationDelegatingHandler>();
 
 var app = builder.Build();
 
